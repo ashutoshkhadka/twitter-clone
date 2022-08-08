@@ -3,7 +3,9 @@ const app = express(); //creating an instance of express
 const port = 3003;
 const middleware = require('./middleware');
 const path = require('path');
+const bodyParser = require('body-parser');
 
+app.use(bodyParser.urlencoded({extended: false}));
 const server = app.listen(port, () => console.log("server is listening on port " + port));
 
 app.set("view engine", "pug");
