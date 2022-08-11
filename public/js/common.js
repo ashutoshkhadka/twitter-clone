@@ -14,6 +14,29 @@ $("#postTextarea").keyup(event => {
     submitButton.prop("disabled", false);
 })
 
+$(document).on("click", ".likeButton", (event) => {
+    var button = $(event.target);
+    var postId = getPostIdFromElement(button);
+
+    if (postId == undefined) return;
+
+    $.ajax({
+        url: `/api/posts/${postId}/like`,
+        type: "PUT",
+        success: (postData) => {
+            console.log(postData);
+        }
+    })
+
+
+})
+
+function getPostIdFromElement(element) {
+    var isRoot = element.hasClass("post");
+    var rootElement = isRoot ? element : element.closest(".post");
+    return rootElement.data().id;
+}
+
 $("#submitPostButton").click(() => {
     var button = $(event.target);
     var textBox = $("#postTextarea");
@@ -33,7 +56,7 @@ function createPostHtml(postData) {
     var postedBy = postData.postedBy;
     var displayName = postedBy.firstName + " " + postedBy.lastName;
     var timeStamp = timeDifference(new Date(), new Date(postData.createdAt));
-    return `<div class='post'>
+    return `<div class='post' data-id='${postData._id}'>
                 <div class='mainContentContainer'>
                     <div class='userImageContainer'>
                         <img src='${postedBy.profilePic}'/>
@@ -59,7 +82,7 @@ function createPostHtml(postData) {
                                 </button>
                             </div>
                             <div class='postButtonContainer'>
-                                <button>
+                                <button class='likeButton'>
                                     <i class='far fa-heart'></i>
                                 </button>
                             </div>
