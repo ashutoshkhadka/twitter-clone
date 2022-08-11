@@ -101,7 +101,6 @@ nav a {
 .textareaContainer {
     flex: 1;
     padding-left: var(--spacing);
-
 }
 
 .textareaContainer textarea {
@@ -184,3 +183,4 @@ nav a {
     border-radius: 50%;
     color: var(--blue);
 }
+
