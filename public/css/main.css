@@ -7,9 +7,9 @@
     --grey-button-text: rgb(0, 0, 0, 0.34);
     --spacing: 15px;
     --red: rgb(226, 34, 94);
-    --redBackground: rgb(226, 34, 94,0.1);
-    --green: rgb(23,191,99);
-    --greenBackground: rgb(23,191,99,0.1);
+    --redBackground: rgb(226, 34, 94, 0.1);
+    --green: rgb(23, 191, 99);
+    --greenBackground: rgb(23, 191, 99, 0.1);
 }
 
 * {
@@ -93,6 +93,16 @@ nav a {
     padding: var(--spacing);
     border-bottom: 10px solid rgb(230, 236, 240);
     flex-shrink: 0;
+}
+
+.modal .postFormContainer {
+    padding: 0;
+    border: none;
+    padding-top: var(--spacing);
+}
+
+.modal .post {
+    padding: 0 0 var(--spacing) 0;
 }
 
 .userImageContainer {
@@ -216,4 +226,13 @@ nav a {
     font-size: 13px;
     color: var(--grey-text);
     margin-bottom: 5px;
+}
+
+.replyFlag {
+    margin-bottom: 5px;
+
+}
+
+.replyFlag a {
+    color: var(--blue);
 }

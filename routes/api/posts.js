@@ -8,20 +8,30 @@ const Post = require('../../schemas/PostSchema');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-router.get("/", (req, res, next) => {
-    Post.find()
+router.get("/", async (req, res, next) => {
+    var results = await getPosts({});
+    res.status(200).send(results);
+});
+
+router.get("/:id", async (req, res, next) => {
+    var postId = req.params.id;
+    var results = await getPosts({ _id: postId });
+    res.status(200).send(results[0]);
+});
+
+
+async function getPosts(filter) {
+    var results = await Post.find(filter)
+        .populate("replyTo")
         .populate("postedBy")
         .populate("retweetData")
         .sort({ "createdAt": -1 })
-        .then(async results => {
-            results = await User.populate(results, {path: "retweetData.postedBy"})
-            res.status(200).send(results);
-        })
-        .catch(err => {
-            console.log("Cannot get posts " + err);
-            res.sendStatus(400);
-        });
-});
+        .catch(err => console.log("Cannot get posts " + err));
+
+    results = await User.populate(results, { path: "replyTo.postedBy" });
+    return results = await User.populate(results, { path: "retweetData.postedBy" });
+}
+
 
 router.post("/", async (req, res, next) => {
     if (!req.body.content) {
@@ -34,6 +44,10 @@ router.post("/", async (req, res, next) => {
         content: req.body.content,
         postedBy: req.session.user
     };
+
+    if (req.body.replyTo) {
+        postData.replyTo = req.body.replyTo;
+    }
 
     Post.create(postData)
         .then(async newPost => {

@@ -1,8 +1,9 @@
-$("#postTextarea").keyup(event => {
+$("#postTextarea, #replyTextarea").keyup(event => {
     var textBox = $(event.target);
     var value = textBox.val().trim();
+    var isModal = textBox.parents(".modal").length == 1;
+    var submitButton = isModal ? $("#submitReplyButton") : $("#submitPostButton");
 
-    var submitButton = $("#submitPostButton");
     if (submitButton.length == 0) {
         return alert("No submit btn found");
     }
@@ -13,6 +14,18 @@ $("#postTextarea").keyup(event => {
     }
     submitButton.prop("disabled", false);
 })
+
+$("#replyModal").on("show.bs.modal", (event) => {
+    var button = $(event.relatedTarget);
+    var postId = getPostIdFromElement(button);
+    $("#submitReplyButton").data("id", postId);
+    $.get("/api/posts/" + postId, results => {
+        outputPosts(results, $("#originalPostContainer"));
+    })
+})
+
+// clearing the modal
+$("#replyModal").on("hidden.bs.modal", () => { $("#originalPostContainer").html("") })
 
 $(document).on("click", ".likeButton", (event) => {
     var button = $(event.target);
@@ -66,18 +79,33 @@ function getPostIdFromElement(element) {
     return rootElement.data().id;
 }
 
-$("#submitPostButton").click(() => {
+$("#submitPostButton, #submitReplyButton").click(() => {
     var button = $(event.target);
-    var textBox = $("#postTextarea");
+    var isModal = button.parents(".modal").length == 1;
+    var textBox = isModal ? $("#replyTextarea") : $("#postTextarea");
     var data = {
         content: textBox.val()
     };
 
+    if (isModal) {
+        var id = button.data().id;
+
+        if (id == null) alert("button id is null");
+
+        data.replyTo = id;
+        console.log("is Modal");
+    }
+
     $.post("/api/posts", data, postData => {
-        var html = createPostHtml(postData);
-        $(".postsContainer").prepend(html);
-        textBox.val("");
-        button.prop("disabled", true);
+
+        if (postData.replyTo) {
+            location.reload();
+        } else {
+            var html = createPostHtml(postData);
+            $(".postsContainer").prepend(html);
+            textBox.val("");
+            button.prop("disabled", true);
+        }
     })
 })
 
@@ -86,26 +114,34 @@ function createPostHtml(postData) {
     if (postData == null) return alert("Post Data is null")
 
     var isRetweet = postData.retweetData !== undefined;
-    console.log(isRetweet);
     var retweetedBy = isRetweet ? postData.postedBy.username : null;
     postData = isRetweet ? postData.retweetData : postData;
-    
     var postedBy = postData.postedBy;
 
-    if(postedBy._id == undefined) {
-        return  console.log("User not defined");
-    }
+    if (postedBy._id == undefined) return console.log("User not defined");
 
     var displayName = postedBy.firstName + " " + postedBy.lastName;
     var timeStamp = timeDifference(new Date(), new Date(postData.createdAt));
     var likeButtonActiveClass = postData.likes.includes(userLoggedIn._id) ? "active" : "";
     var retweetButtonActiveClass = postData.retweetUsers.includes(userLoggedIn._id) ? "active" : "";
     var retweetText = '';
+    var replyFlag = '';
     if (isRetweet) {
         retweetText = ` <span>
                         <i class='fas fa-retweet'></i>
                         Retweeted by <a href='/profile/${retweetedBy}'>@${retweetedBy}</a>
                         </span>`;
+    }
+    if (postData.replyTo) {
+        if (!postData.replyTo._id) {
+            alert("ReplyTo is not populated");
+        } else if (!postData.replyTo.postedBy._id) {
+            alert("ReplyTo-postedBy is not populated");
+        }
+        var replyToUsername = postData.replyTo.postedBy.username;
+        replyFlag = `<div class="replyFlag">
+                        Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}</a>
+                    </div> `;
     }
     return `<div class='post' data-id='${postData._id}'>
                 <div class ='postActionContainer'>
@@ -121,12 +157,13 @@ function createPostHtml(postData) {
                             <span class='username'>@${postedBy.username}</span>
                             <span class='date'>${timeStamp}</span>
                         </div>
+                        ${replyFlag}
                         <div class='postBody'>
                             <span>${postData.content}</span>
                         </div>
                         <div class='postFooter'>
                             <div class='postButtonContainer'>
-                                <button>
+                                <button data-toggle='modal' data-target='#replyModal'>
                                     <i class='far fa-comment'></i>
                                 </button>
                             </div>
@@ -183,5 +220,19 @@ function timeDifference(current, previous) {
 
     else {
         return Math.round(elapsed / msPerYear) + ' years ago';
+    }
+}
+
+function outputPosts(results, container) {
+    container.html("");
+
+    if (!Array.isArray(results)) results = [results];
+    results.forEach(result => {
+        var html = createPostHtml(result);
+        container.append(html);
+    })
+
+    if (results.length == 0) {
+        container.append("<span class='noResults'>Nothing to show</span>");
     }
 }
