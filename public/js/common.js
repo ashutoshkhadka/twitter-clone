@@ -20,7 +20,7 @@ $("#replyModal").on("show.bs.modal", (event) => {
     var postId = getPostIdFromElement(button);
     $("#submitReplyButton").data("id", postId);
     $.get("/api/posts/" + postId, results => {
-        outputPosts(results, $("#originalPostContainer"));
+        outputPosts(results.postData, $("#originalPostContainer"));
     })
 })
 
@@ -73,6 +73,15 @@ $(document).on("click", ".retweetButton", (event) => {
     })
 })
 
+$(document).on("click", ".post", (event) => {
+    var element = $(event.target);
+    var postId = getPostIdFromElement(element);
+
+    if (postId !== undefined && !element.is("button")) {
+        window.location.href = '/posts/' + postId;
+    }
+})
+
 function getPostIdFromElement(element) {
     var isRoot = element.hasClass("post");
     var rootElement = isRoot ? element : element.closest(".post");
@@ -109,7 +118,7 @@ $("#submitPostButton, #submitReplyButton").click(() => {
     })
 })
 
-function createPostHtml(postData) {
+function createPostHtml(postData, largeFont = false) {
 
     if (postData == null) return alert("Post Data is null")
 
@@ -124,6 +133,7 @@ function createPostHtml(postData) {
     var timeStamp = timeDifference(new Date(), new Date(postData.createdAt));
     var likeButtonActiveClass = postData.likes.includes(userLoggedIn._id) ? "active" : "";
     var retweetButtonActiveClass = postData.retweetUsers.includes(userLoggedIn._id) ? "active" : "";
+    var largeFontClass = largeFont ? "largeFont" : "";
     var retweetText = '';
     var replyFlag = '';
     if (isRetweet) {
@@ -132,7 +142,7 @@ function createPostHtml(postData) {
                         Retweeted by <a href='/profile/${retweetedBy}'>@${retweetedBy}</a>
                         </span>`;
     }
-    if (postData.replyTo) {
+    if (postData.replyTo && postData.replyTo._id) {
         if (!postData.replyTo._id) {
             alert("ReplyTo is not populated");
         } else if (!postData.replyTo.postedBy._id) {
@@ -143,7 +153,7 @@ function createPostHtml(postData) {
                         Replying to <a href='/profile/${replyToUsername}'>@${replyToUsername}</a>
                     </div> `;
     }
-    return `<div class='post' data-id='${postData._id}'>
+    return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
                 <div class ='postActionContainer'>
                     ${retweetText}
                 </div>
@@ -235,4 +245,20 @@ function outputPosts(results, container) {
     if (results.length == 0) {
         container.append("<span class='noResults'>Nothing to show</span>");
     }
+}
+function outputPostsWithReplies(results, container) {
+    container.html("");
+
+    if (results.replyTo !== undefined && results.replyTo._id !== undefined) {
+        var html = createPostHtml(results.replyTo);
+        container.append(html);
+    }
+
+    var mainPostHtml = createPostHtml(results.postData, true);
+    container.append(mainPostHtml);
+
+    results.replies.forEach(result => {
+        var html = createPostHtml(result);
+        container.append(html);
+    })
 }

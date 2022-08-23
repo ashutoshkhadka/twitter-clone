@@ -15,10 +15,20 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
     var postId = req.params.id;
-    var results = await getPosts({ _id: postId });
-    res.status(200).send(results[0]);
-});
+    var postData = await getPosts({ _id: postId }); 
+    postData = postData[0];
 
+    var results = {
+        postData: postData,
+    };
+
+    if(postData.replyTo !== undefined) {
+        results.replyTo = postData.replyTo;
+    }
+    results.replies = await getPosts({replyTo: postId});
+
+    res.status(200).send(results);
+});
 
 async function getPosts(filter) {
     var results = await Post.find(filter)
@@ -31,7 +41,6 @@ async function getPosts(filter) {
     results = await User.populate(results, { path: "replyTo.postedBy" });
     return results = await User.populate(results, { path: "retweetData.postedBy" });
 }
-
 
 router.post("/", async (req, res, next) => {
     if (!req.body.content) {
@@ -84,8 +93,6 @@ router.put("/:id/like", async (req, res, next) => {
 
     res.status(200).send(post);
 });
-
-
 
 router.post("/:id/retweet", async (req, res, next) => {
     var postId = req.params.id;
