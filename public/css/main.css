@@ -1,6 +1,7 @@
 :root {
     --blue: #1fa2f1;
     --blue-light: #9bd1f9;
+    --blue-background: rgba(212, 237, 255, 0.6);
     --btn-hover: #d4edff;
     --light-grey: rgb(230, 236, 240);
     --grey-text: rgb(101, 109, 134);
@@ -18,6 +19,7 @@
 
 a {
     color: inherit;
+    text-decoration: none;
 }
 
 button {
@@ -84,7 +86,6 @@ nav a {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
     color: #212529;
 }
 
@@ -248,4 +249,103 @@ nav a {
 
 .header .date {
     flex: 1;
+}
+
+.errorMessage {
+    padding: var(--spacing);
+}
+
+.profileHeaderContainer .coverPhotoContainer {
+    height: 180px;
+    background-color: var(--blue);
+    position: relative;
+}
+
+.profileHeaderContainer .userImageContainer {
+    height: 132px;
+    width: 132px;
+    margin-left: var(--spacing);
+    position: absolute;
+    bottom: -66px;
+}
+
+
+.profileHeaderContainer .userImageContainer img {
+    border: 4px solid #fff;
+}
+
+.profileHeaderContainer .profileButtonsContainer {
+    text-align: right;
+    padding: var(--spacing);
+    min-height: 66px;
+}
+
+.profileButton,
+.followButton {
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-weight: bold;
+    padding: 5px 15px;
+    border-radius: 60px;
+    display: inline-block;
+    margin-left: var(--spacing);
+}
+
+.profileButton:hover,
+.followButton:hover {
+    background-color: var(--blue-background);
+}
+
+.followButton.following {
+    background-color: var(--blue);
+    color: white;
+}
+
+.profileHeaderContainer .userDetailsContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 0 var(--spacing);
+}
+
+.followersContainer .value{
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.followersContainer span:not(.value){
+    color: var(--grey-text);
+}
+
+.followersContainer a {
+    margin-right: 15px;
+}
+
+.followersContainer a:hover {
+    border-bottom: 1px solid black;
+}
+
+.tabsContainer {
+    display: flex;
+    border-bottom: 1px solid var(--light-grey);
+    flex-shrink: 0;
+}
+
+.tab {
+    flex: 1;
+    height: 52px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--grey-text);
+    font-weight: bold;
+}
+
+.tab.active {
+    color: var(--blue);
+    border-bottom: 2px solid var(--blue);
+}
+
+.tab:hover {
+    color: var(--blue);
+    background-color: var(--blue-background);
 }
