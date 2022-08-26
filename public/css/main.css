@@ -241,3 +241,11 @@ nav a {
 .post.largeFont .postFooter {
     font-size: 23px;
 }
+
+.postContentContainer .header {
+    display: flex;
+}
+
+.header .date {
+    flex: 1;
+}
