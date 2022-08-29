@@ -15,7 +15,18 @@ router.get("/", async (req, res, next) => {
         var isReply = searchObj.isReply == "true";
         searchObj.replyTo = { $exists: isReply };
         delete searchObj.isReply;
-        console.log(searchObj)
+    }
+
+    if (searchObj.followingOnly !== undefined) {
+        if (searchObj.followingOnly == "true") {
+            var objectIds = [];
+            req.session.user.following.forEach(element => {
+                objectIds.push(element);
+            });
+            objectIds.push(req.session.user._id);
+            searchObj.postedBy = { $in: objectIds };
+        }
+        delete searchObj.followingOnly;
     }
 
     var results = await getPosts(searchObj);

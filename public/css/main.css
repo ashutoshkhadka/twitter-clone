@@ -17,6 +17,10 @@
     outline: none !important;
 }
 
+.wrapper>.row {
+    margin: 0;
+}
+
 a {
     color: inherit;
     text-decoration: none;
@@ -307,12 +311,12 @@ nav a {
     padding: 0 var(--spacing);
 }
 
-.followersContainer .value{
+.followersContainer .value {
     font-weight: bold;
     margin-right: 5px;
 }
 
-.followersContainer span:not(.value){
+.followersContainer span:not(.value) {
     color: var(--grey-text);
 }
 
@@ -348,4 +352,24 @@ nav a {
 .tab:hover {
     color: var(--blue);
     background-color: var(--blue-background);
+}
+
+.noResultsFound {
+    padding: var(--spacing);
+}
+
+.resultsContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.resultsContainer .user {
+    padding: var(--spacing);
+    display: flex;
+    border-bottom: 1px solid var(--light-grey);
+}
+
+.user .userDetailsContainer {
+    flex: 1;
+    padding: 0 var(--spacing);
 }
