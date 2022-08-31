@@ -259,7 +259,7 @@ nav a {
     padding: var(--spacing);
 }
 
-.profileHeaderContainer .coverPhotoContainer {
+.profileHeaderContainer .coverPhotoSection {
     height: 180px;
     background-color: var(--blue);
     position: relative;
@@ -377,17 +377,35 @@ nav a {
     padding: 0 var(--spacing);
 }
 
-.profilePictureButton {
+.profilePictureButton,
+.coverPhotoButton {
     position: absolute;
     font-size: 50px;
-    color: rgb(0,0,0,0.6);
+    color: rgb(0, 0, 0, 0.6);
     display: none;
 }
-.userImageContainer:hover .profilePictureButton {
-   display: block;
+
+
+.userImageContainer:hover .profilePictureButton,
+.coverPhotoSection:hover .coverPhotoButton {
+    display: block;
 }
 
-#imagePreview  {
+.coverPhotoContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.coverPhotoContainer img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+#imagePreview,
+#coverPreview {
     display: block;
     width: 100%;
     max-width: 100%;

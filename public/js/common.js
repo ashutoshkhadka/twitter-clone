@@ -71,6 +71,26 @@ $("#filePhoto").change(function () {
     }
 })
 
+$("#coverPhoto").change(function () {
+    if (this.files && this.files[0]) {
+        var reader = new FileReader();
+        reader.onload = (e) => {
+            var image = document.getElementById("coverPhotoPreview");
+            image.src = e.target.result;
+
+            if (cropper !== undefined) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(image, {
+                aspectRatio: 16 / 9,
+                background: false
+            });
+        }
+        reader.readAsDataURL(this.files[0]);
+    }
+})
+
 $("#imageUploadButton").click(() => {
     var canvas = cropper.getCroppedCanvas();
     if (canvas == null) {
@@ -82,6 +102,28 @@ $("#imageUploadButton").click(() => {
 
         $.ajax({
             url: "/api/users/profilePicture",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: () => {
+                location.reload();
+            }
+        })
+    });
+})
+
+$("#coverPhotoUploadButton").click(() => {
+    var canvas = cropper.getCroppedCanvas();
+    if (canvas == null) {
+        alert("cropped canvas not found");
+    }
+    canvas.toBlob((blob) => {
+        var formData = new FormData();
+        formData.append("croppedImage", blob);
+
+        $.ajax({
+            url: "/api/users/coverPhoto",
             type: "POST",
             data: formData,
             processData: false,
