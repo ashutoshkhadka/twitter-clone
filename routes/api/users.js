@@ -5,6 +5,10 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const User = require('../../schemas/UserSchema');
 const Post = require('../../schemas/PostSchema');
+const multer = require('multer');
+const upload = multer({ dest: "uploads/" });
+const path = require('path');
+const fs = require('fs');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -47,27 +51,51 @@ router.put("/:userId/follow", async (req, res, next) => {
 router.get("/:userId/following", async (req, res, next) => {
     var userId = req.params.userId;
     await User.findById(userId)
-    .populate("following")
+        .populate("following")
         .then(results =>
             res.status(200).send(results)
-            )
-            .catch(err =>{
-                console.log(err);
-                res.sendStatus(400);
-            });
+        )
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(400);
+        });
 });
 
 router.get("/:userId/followers", async (req, res, next) => {
     var userId = req.params.userId;
     await User.findById(userId)
-    .populate("followers")
+        .populate("followers")
         .then(results =>
             res.status(200).send(results)
-            )
-            .catch(err =>{
-                console.log(err);
-                res.sendStatus(400);
-            });
+        )
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(400);
+        });
+});
+
+router.post("/profilePicture", upload.single("croppedImage"), async (req, res, next) => {
+    console.log("image uploading...");
+    if (!req.file) {
+        console.log("NO file uploaded with AJAX request");
+        return res.sendStatus(404);
+    }
+
+    var filePath = `/uploads/img/${req.file.filename}.png`;
+    var tempPath = req.file.path;
+    var targetPath = path.join(__dirname, `../../${filePath}`);
+
+    
+
+    fs.rename(tempPath, targetPath, async err => {
+        if (err != null) {
+            console.log(err);
+            return res.sendStatus(400);
+        }
+        req.session.user = await User.findByIdAndUpdate(req.session.user._id, { profilePic: filePath }, { new: true });
+        res.sendStatus(204);
+    });
+
 });
 
 module.exports = router;

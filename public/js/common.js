@@ -1,3 +1,7 @@
+// Globals
+
+var cropper;
+
 $("#postTextarea, #replyTextarea").keyup(event => {
     var textBox = $(event.target);
     var value = textBox.val().trim();
@@ -47,6 +51,47 @@ $("#submitDeletePostButton").click((event) => {
     })
 });
 
+$("#filePhoto").change(function () {
+    if (this.files && this.files[0]) {
+        var reader = new FileReader();
+        reader.onload = (e) => {
+            var image = document.getElementById("imagePreview");
+            image.src = e.target.result;
+
+            if (cropper !== undefined) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(image, {
+                aspectRatio: 1 / 1,
+                background: false
+            });
+        }
+        reader.readAsDataURL(this.files[0]);
+    }
+})
+
+$("#imageUploadButton").click(() => {
+    var canvas = cropper.getCroppedCanvas();
+    if (canvas == null) {
+        alert("cropped canvas not found");
+    }
+    canvas.toBlob((blob) => {
+        var formData = new FormData();
+        formData.append("croppedImage", blob);
+
+        $.ajax({
+            url: "/api/users/profilePicture",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: () => {
+                location.reload();
+            }
+        })
+    });
+})
 
 // clearing the modal
 $("#replyModal").on("hidden.bs.modal", () => { $("#originalPostContainer").html("") })
@@ -115,7 +160,7 @@ $(document).on("click", ".followButton", (event) => {
             if (data.following && data.following.includes(userId)) {
                 button.addClass("following");
                 button.text("Following");
-                
+
             } else {
                 button.removeClass("following");
                 button.text("Follow");
@@ -125,7 +170,7 @@ $(document).on("click", ".followButton", (event) => {
                 var followers = parseInt(followersLabel.text());
                 followersLabel.text(followers + difference);
             }
-        
+
         }
     })
 })
