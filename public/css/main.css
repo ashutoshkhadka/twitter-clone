@@ -410,3 +410,16 @@ nav a {
     width: 100%;
     max-width: 100%;
 }
+
+.pinButton.active {
+    color: var(--blue);
+}
+
+.pinnedPostText {
+    font-size: 12px;
+    color: var(--grey-text);
+}
+
+.pinnedPostContainer {
+    border-bottom: 10px solid var(--light-grey);
+}

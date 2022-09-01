@@ -19,16 +19,6 @@ $("#postTextarea, #replyTextarea").keyup(event => {
     submitButton.prop("disabled", false);
 })
 
-$("#replyModal").on("show.bs.modal", (event) => {
-    var button = $(event.relatedTarget);
-    var postId = getPostIdFromElement(button);
-    $("#submitReplyButton").data("id", postId);
-    $.get("/api/posts/" + postId, results => {
-        outputPosts(results.postData, $("#originalPostContainer"));
-    })
-})
-
-
 $("#deletePostModal").on("show.bs.modal", (event) => {
     var button = $(event.relatedTarget);
     var postId = getPostIdFromElement(button);
@@ -44,6 +34,54 @@ $("#submitDeletePostButton").click((event) => {
         success: (data, status, xhr) => {
             if (xhr.status != 202) {
                 alert("Could not delete Post");
+                return;
+            }
+            location.reload();
+        }
+    })
+});
+
+$("#replyModal").on("show.bs.modal", (event) => {
+    modalButtonHandler(event, "#submitReplyButton");
+    $.get("/api/posts/" + postId, results => {
+        outputPosts(results.postData, $("#originalPostContainer"));
+    })
+})
+$("#confirmPinModal").on("show.bs.modal", (event) => modalButtonHandler(event, "#pinPostButton"));
+$("#confirmUnpinModal").on("show.bs.modal", (event) => modalButtonHandler(event, "#unpinPostButton"));
+
+
+$("#pinPostButton").click((event) => {
+    var postId = $(event.target).data("id");
+    $.ajax({
+        url: `/api/posts/${postId}`,
+        type: "PUT",
+        data: { pinned: true },
+        success: (data, status, xhr) => {
+            if (xhr.status != 204) {
+                alert("Could not pin the Post");
+                return;
+            }
+            location.reload();
+        }
+    })
+});
+
+function modalButtonHandler(event, buttonId) {
+    var button = $(event.relatedTarget);
+    var postId = getPostIdFromElement(button);
+    $(buttonId).data("id", postId);
+}
+
+$("#unpinPostButton").click((event) => {
+    var postId = $(event.target).data("id");
+    $.ajax({
+        url: `/api/posts/${postId}`,
+        type: "PUT",
+        data: { pinned: false },
+        success: (data, status, xhr) => {
+            if (xhr.status != 204) {
+                alert("Could not pin the Post");
                 return;
             }
             location.reload();
@@ -299,10 +337,19 @@ function createPostHtml(postData, largeFont = false) {
     }
 
     var button = "";
+    var pinnedPostText = "";
     if (postData.postedBy._id == userLoggedIn._id) {
-        button = `<button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal">
-                        <i class='fas fa-times'></i>
-                    </button>`;
+
+        var pinnedClass = "";
+        var dataTarget = "#confirmPinModal";
+        if (postData.pinned === true) {
+            pinnedPostText = "<i class = 'fas fa-thumbtack'></i><span>PinnedPost</span>";
+            dataTarget = "#confirmUnpinModal";
+            pinnedClass = "active";
+        }
+
+        button = `  <button class = 'pinButton ${pinnedClass}' data-id="${postData._id}" data-toggle="modal" data-target="${dataTarget}"><i class='fas fa-thumbtack'></i></button>
+                    <button data-id="${postData._id}" data-toggle="modal" data-target="#deletePostModal"><i class='fas fa-times'></i></button>`;
     }
 
     return `<div class='post ${largeFontClass}' data-id='${postData._id}'>
@@ -314,6 +361,7 @@ function createPostHtml(postData, largeFont = false) {
                         <img src='${postedBy.profilePic}'/>
                     </div>
                     <div class='postContentContainer'>
+                       <div class="pinnedPostText"> ${pinnedPostText}</div>
                         <div class='header'>
                             <a href="/profile/${postedBy.username}" class='displayName'>${displayName}</a>
                             <span class='username'>@${postedBy.username}</span>

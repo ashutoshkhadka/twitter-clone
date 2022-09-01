@@ -167,4 +167,22 @@ router.delete("/:id", async (req, res, next) => {
         });
 });
 
+router.put("/:id", async (req, res, next) => {
+    if (req.body.pinned !== undefined) {
+        //Update pinned
+        await Post.updateMany({ postedBy: req.session.user }, { pinned: false })
+            .catch(err => {
+                console.log(err);
+                res.sendStatus(400);
+            });
+    }
+    Post.findByIdAndUpdate(req.params.id, req.body)
+        .then(() => res.sendStatus(204))
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(400);
+        })
+});
+
+
 module.exports = router;

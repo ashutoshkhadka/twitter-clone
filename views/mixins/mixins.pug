@@ -40,9 +40,41 @@ mixin createDeletePostModal()
                     button.btn.btn-secondary(type='button', data-dismiss='modal') Close
                     button#submitDeletePostButton.btn.btn-primary(type='button') Delete
 
+mixin createPinnedModal()
+    #confirmPinModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='confirmPinModalLabel', aria-hidden='true')
+        .modal-dialog(role='document')
+            .modal-content
+                .modal-header
+                    h5#confirmPinModalLabel.modal-title Pin this post?
+                    button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body
+                    p This post will always appear at the top of your profile
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-dismiss='modal') Cancel
+                    button#pinPostButton.btn.btn-primary(type='button') Pin
+
+mixin createUnpinnedModal()
+    #confirmUnpinModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='confirmUnpinModalLabel', aria-hidden='true')
+        .modal-dialog(role='document')
+            .modal-content
+                .modal-header
+                    h5#confirmUnpinModalLabel.modal-title Unpin this post?
+                    button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body
+                    p This post will no longer appear at the top of your profile
+                .modal-footer
+                    button.btn.btn-secondary(type='button', data-dismiss='modal') Cancel
+                    button#unpinPostButton.btn.btn-primary(type='button') Unpin
+
+
+
 mixin createPostModals(userLoggedIn)
     +createReplyModal(userLoggedIn)
     +createDeletePostModal()
+    +createPinnedModal()
+    +createUnpinnedModal()
 
 
 mixin  createFollowButton(user, isFollowing)
