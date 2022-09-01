@@ -1,20 +1,33 @@
-$(document).ready(() => {
-    if (selectedTab === "following") {
-        loadFollowing();
-    } else {
-        loadFollowers();
-    }
+// Globals
+var timer;
+
+$('#searchBox').keydown((event) => {
+
+    clearTimeout(timer);
+    var textBox = $(event.target);
+    var value = textBox.val();
+    var searchType = textBox.data().search;
+
+    timer = setTimeout(() => {
+        value = textBox.val().trim();
+        if (value == "") {
+            $(".resultsContainer").html("");
+        } else {
+            search(value, searchType);
+        }
+    }, 1000)
 })
 
-function loadFollowing() {
-    $.get(`/api/users/${profileUserId}/following`, { postedBy: profileUserId, isReply: false }, results => {
-        outputUsers(results.following, $(".resultsContainer"));
-    })
-}
+function search(searchTerm, searchType) {
+    var url = searchType == "users" ? "/api/users" : "/api/posts";
+    $.get(url, { search: searchTerm }, results => {
 
-function loadFollowers() {
-    $.get(`/api/users/${profileUserId}/followers`, { postedBy: profileUserId, isReply: false }, results => {
-        outputUsers(results.followers, $(".resultsContainer"));
+        if (searchType != "users") {
+            outputPosts(results, $(".resultsContainer"));
+        } else  {
+            outputUsers(results, $(".resultsContainer"));
+        }
+    
     })
 }
 
