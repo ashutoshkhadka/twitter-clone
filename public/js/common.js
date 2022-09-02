@@ -1,6 +1,8 @@
 // Globals
 
 var cropper;
+var timer;
+var selectedUsers = [];
 
 $("#postTextarea, #replyTextarea").keyup(event => {
     var textBox = $(event.target);
@@ -463,3 +465,112 @@ function outputPostsWithReplies(results, container) {
         container.append(html);
     })
 }
+
+$('#userSearchTextbox').keydown((event) => {
+
+    clearTimeout(timer);
+    var textBox = $(event.target);
+    var value = textBox.val();
+
+    if (value == "" && (event.which == 8 || event.keyCode == 8)) {
+        selectedUsers.pop();
+        updateSelectedUsers();
+        $(".resultsContainer").html("");
+        if (selectedUsers.length == 0) {
+            $("#createChatButton").prop("disabled", true);
+        }
+        return;
+    }
+
+
+    timer = setTimeout(() => {
+        value = textBox.val().trim();
+        if (value == "") {
+            $(".resultsContainer").html("");
+        } else {
+            searchUsers(value);
+        }
+    }, 1000)
+})
+
+function searchUsers(searchTerm) {
+    $.get(`/api/users`, { search: searchTerm }, results => {
+        outputSelectableUsers(results, $(".resultsContainer"));
+    })
+}
+
+
+function outputSelectableUsers(results, container) {
+    container.html("");
+    results.forEach(result => {
+
+        if (result._id == userLoggedIn._id || selectedUsers.some(user => user._id == result._id)) {
+            return;
+        }
+
+        var html = createUserHtml(result, false);
+        var element = $(html);
+        element.click(() => userSelected(result))
+        container.append(element);
+
+    });
+    if (results.length == 0) {
+        container.append(`<span class='noResultsFound'>No Results found.</span>`);
+    }
+}
+
+function userSelected(user) {
+    selectedUsers.push(user);
+    updateSelectedUsers();
+    $("#userSearchTextbox").val("").focus();
+    $(".resultsContainer").html("");
+    $("#createChatButton").prop("disabled", false);
+}
+
+function updateSelectedUsers() {
+    var elements = [];
+    selectedUsers.forEach(user => {
+        var name = user.firstName + " " + user.lastName;
+        var userElement = $(`<span class='selectedUser'>${name}</span>`);
+        elements.push(userElement);
+    })
+    $(".selectedUser").remove();
+    $("#selectedUsers").prepend(elements);
+}
+
+
+function createUserHtml(userData, showFollowButton) {
+    var name = userData.firstName + " " + userData.lastName;
+    var isFollowing = userLoggedIn.following && userLoggedIn.following.includes(userData._id);
+    var followBtnText = isFollowing ? "Following" : "Follow";
+    var buttonClass = isFollowing ? "followButton following" : "followButton";
+    var followButton = "";
+    if (showFollowButton && userLoggedIn._id != userData._id) {
+        followButton = `<div class='followButtonContainer'>
+                <button class='${buttonClass}' data-user='${userData._id}'>${followBtnText}</button>
+            </div>`
+    }
+
+    return `<div class='user'>
+        <div class='userImageContainer'>
+            <img src='${userData.profilePic}' />
+        </div>
+        <div class='userDetailsContainer'>
+            <div class='header'>
+                <a href='/profile/${userData.username}'>${name}</a>
+                <span class='username'>@${userData.username}</span>
+            </div>
+        </div>
+        ${followButton}
+    </div>`;
+}
+
+$("#createChatButton").click(() => {
+    var data = JSON.stringify(selectedUsers);
+    $.post("/api/chats", { users: data }, chat => {
+        if (!chat || !chat._id) {
+            alert("Invalid chat response from server");
+        }
+        window.location.href = `/messages/${chat._id}`;
+    });
+})

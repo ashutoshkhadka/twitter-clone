@@ -1,6 +1,3 @@
-// Globals
-var timer;
-
 $('#searchBox').keydown((event) => {
 
     clearTimeout(timer);
@@ -40,31 +37,4 @@ function outputUsers(results, container) {
     if (results.length == 0) {
         container.append(`<span class='noResultsFound'>No Results found.</span>`);
     }
-}
-
-function createUserHtml(userData, showFollowButton) {
-    var name = userData.firstName + " " + userData.lastName;
-    var isFollowing = userLoggedIn.following && userLoggedIn.following.includes(userData._id);
-    var followBtnText = isFollowing ? "Following" : "Follow";
-    var buttonClass = isFollowing ? "followButton following" : "followButton";
-    var followButton = "";
-    if (showFollowButton && userLoggedIn._id != userData._id) {
-        followButton = `<div class='followButtonContainer'>
-                <button class='${buttonClass}' data-user='${userData._id}'>${followBtnText}</button>
-            </div>`
-    }
-
-    return `<div class='user'>
-        <div class='userImageContainer'>
-            <img src='${userData.profilePic}' />
-        </div>
-        <div class='userDetailsContainer'>
-            <div class='header'>
-                <a href='/profile/${userData.username}'>${name}</a>
-                <span class='username'>@${userData.username}</span>
-            </div>
-        </div>
-        ${followButton}
-    </div>`;
-
 }
