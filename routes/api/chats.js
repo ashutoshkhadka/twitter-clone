@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const router = express.Router();
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const User = require('../../schemas/UserSchema');
 const Post = require('../../schemas/PostSchema');
@@ -38,10 +39,13 @@ router.get("/", async (req, res, next) => {
     Chat.find({
         users: {
             $elemMatch: {
-                $eq: req.session.user._id
+                $eq: mongoose.Types.ObjectId(req.session.user._id)
             }
         }
     }).populate("users")
+        .sort({
+            updatedAt: -1
+        })
         .then(results => res.status(200).send(results))
         .catch(err => {
             console.log(err);

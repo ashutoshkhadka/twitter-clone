@@ -52,6 +52,8 @@ function getOtherChatUsers(users) {
 function getChatImageElement(chatData) {
     var otherChatUsers = getOtherChatUsers(chatData.users);
     var groupChatClass = "";
+    console.log("Other Chat Users")
+    console.log(otherChatUsers);
     var chatImage = getUserChatImageElement(otherChatUsers[0]);
     console.log(chatImage);
     if (otherChatUsers.length > 1) {
