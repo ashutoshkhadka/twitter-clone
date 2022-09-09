@@ -662,3 +662,7 @@ nav a {
     border: 2px solid white;
     margin-left: -10px;
 }
+
+#chatNameTextbox {
+    width: 100%;
+}

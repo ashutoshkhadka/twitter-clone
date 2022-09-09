@@ -32,30 +32,10 @@ function createChatHtml(chatData) {
     </a>`;
 }
 
-function getChatName(chatData) {
-    var chatName = chatData.chatName;
-    if (!chatName) {
-        var otherChatUsers = getOtherChatUsers(chatData.users);
-        var namesArray = otherChatUsers.map(user => user.firstName + " " + user.lastName);
-        chatName = namesArray.join(" , ");
-    }
-    return chatName;
-}
-
-function getOtherChatUsers(users) {
-    if (users.length == 0) {
-        return users;
-    }
-    return users.filter(user => user._id != userLoggedIn._id);
-}
-
 function getChatImageElement(chatData) {
     var otherChatUsers = getOtherChatUsers(chatData.users);
     var groupChatClass = "";
-    console.log("Other Chat Users")
-    console.log(otherChatUsers);
     var chatImage = getUserChatImageElement(otherChatUsers[0]);
-    console.log(chatImage);
     if (otherChatUsers.length > 1) {
         groupChatClass = "groupChatImage";
         chatImage += getUserChatImageElement(otherChatUsers[1]);

@@ -286,7 +286,6 @@ $("#submitPostButton, #submitReplyButton").click(() => {
         if (id == null) alert("button id is null");
 
         data.replyTo = id;
-        console.log("is Modal");
     }
 
     $.post("/api/posts", data, postData => {
@@ -574,3 +573,20 @@ $("#createChatButton").click(() => {
         window.location.href = `/messages/${chat._id}`;
     });
 })
+
+function getChatName(chatData) {
+    var chatName = chatData.chatName;
+    if (!chatName) {
+        var otherChatUsers = getOtherChatUsers(chatData.users);
+        var namesArray = otherChatUsers.map(user => user.firstName + " " + user.lastName);
+        chatName = namesArray.join(" , ");
+    }
+    return chatName;
+}
+
+function getOtherChatUsers(users) {
+    if (users.length == 0) {
+        return users;
+    }
+    return users.filter(user => user._id != userLoggedIn._id);
+}
