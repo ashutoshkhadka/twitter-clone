@@ -1,4 +1,20 @@
+var typing = false;
+var lastTypingTime;
+
+
 $(document).ready(() => {
+
+    socket.emit("join room", chatId);
+    
+    socket.on("typing", () => {
+        console.log("typing");
+        $(".typingDots").show()
+    });
+    
+    socket.on("stop typing", () => {
+        $(".typingDots").hide();
+    });
+
     $.get(`/api/chats/${chatId}`, (data) => {
         $("#chatName").text(getChatName(data));
 
@@ -42,20 +58,45 @@ $(".sendMessageButton").click(() => {
 });
 
 $(".inputTextbox").keydown((event) => {
+    updateTyping();
     if (event.which === 13 && !event.shiftKey) {
         messageSubmitted();
         return false;
     }
 });
 
+function updateTyping() {
+
+    if (!connected) return;
+
+    if (!typing) {
+        typing = true;
+        socket.emit("typing", chatId);
+    }
+
+    lastTypingTime = new Date().getTime();
+    var timerLength = 3000;
+
+    setTimeout(() => {
+        var timeNow = new Date().getTime();
+        diff = timeNow - lastTypingTime;
+        if (diff >= timerLength && typing) {
+            socket.emit("stop typing", chatId);
+            typing = false;
+        }
+    }, timerLength);
+}
+
 function messageSubmitted() {
     var content = $(".inputTextbox").val().trim();
     if (content != "") {
         sendMessage(content);
         $(".inputTextbox").val("");
+        socket.emit("stop typing", chatId);
+        typing = false;
+        scrollToBottom(true);
     }
 }
-
 function sendMessage(content) {
     $.post("/api/messages/",
         {
@@ -63,11 +104,17 @@ function sendMessage(content) {
             chatId: chatId
         },
         (data, status, xhr) => {
-            addChatMessageHtml(data);
+            
             if (xhr.status != 201) {
                 alert("Could not send message");
                 $(".chatMessages").append(data);
                 return;
+            }
+
+            addChatMessageHtml(data);
+            
+            if (connected) {
+                socket.emit("new message", data);
             }
         })
 }
@@ -79,6 +126,7 @@ function addChatMessageHtml(message) {
     }
     var messageDiv = createMessageHtml(message, null, "");
     addMessageHtmlToPage(messageDiv);
+    scrollToBottom(true);
 }
 
 function createMessageHtml(message, nextMessage, lastSenderId) {

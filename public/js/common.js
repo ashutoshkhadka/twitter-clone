@@ -590,3 +590,14 @@ function getOtherChatUsers(users) {
     }
     return users.filter(user => user._id != userLoggedIn._id);
 }
+
+function messageReceived(newMessage){
+    console.log("inside Message Reciev")
+    if($(".chatContainer").length == 0) {
+        // Not on the chat page
+        //Show popup notification
+    } else {
+        //chat Page
+        addChatMessageHtml(newMessage);
+    }
+}
