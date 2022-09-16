@@ -22,7 +22,7 @@ function outputChatList(chatList, container) {
 function createChatHtml(chatData) {
     var chatName = getChatName(chatData);
     var image = getChatImageElement(chatData);
-    var latestMessage = "latest message";
+    var latestMessage = getLatestMessage(chatData.latestMessage);
     return `<a href='/messages/${chatData._id}' class='resultListItem'>
         ${image}
         <div class='resultsDetailsContainer ellipsis'>
@@ -30,6 +30,15 @@ function createChatHtml(chatData) {
             <span class='subtext'>${latestMessage}</span>
         </div>
     </a>`;
+}
+
+function getLatestMessage (latestMessage) {
+    if (latestMessage != null) {
+        console.log(latestMessage)
+        return `${latestMessage.sender.firstName} ${latestMessage.sender.lastName}: ${latestMessage.content}`; 
+    } else {
+        return `new chat`;
+    }
 }
 
 function getChatImageElement(chatData) {
@@ -41,14 +50,14 @@ function getChatImageElement(chatData) {
         chatImage += getUserChatImageElement(otherChatUsers[1]);
     }
 
-    return`<div class='resultsImageContainer ${groupChatClass}'>${chatImage}</div>`;
+    return `<div class='resultsImageContainer ${groupChatClass}'>${chatImage}</div>`;
 }
 
 function getUserChatImageElement(user) {
-    if (!user || !user.profilePic) { 
+    if (!user || !user.profilePic) {
         console.log("invalid User/User image")
         return;
     }
     return ` <img src="${user.profilePic}" alt="User's Profile Picture")/>`;
-    
+
 }
