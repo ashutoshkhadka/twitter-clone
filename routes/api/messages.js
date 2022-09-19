@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const User = require('../../schemas/UserSchema');
 const Post = require('../../schemas/PostSchema');
+const Notification = require('../../schemas/NotificationSchema');
 const Message = require('../../schemas/MessageSchema');
 const Chat = require('../../schemas/ChatSchema');
 
@@ -28,10 +29,11 @@ router.post("/", async (req, res, next) => {
             message = await message.populate("chat");
             message = await User.populate(message, { path: "chat.users" });
 
-            Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message }).catch(err => {
+            var chat = await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message }).catch(err => {
                 console.log(err);
                 console.log("Could not update Chat");
-            })
+            });
+            insertNotifications(chat, message);
             res.status(201).send(message);
         })
         .catch(err => {
@@ -39,5 +41,14 @@ router.post("/", async (req, res, next) => {
             res.sendStatus(400);
         });
 });
+
+function insertNotifications(chat, message) {
+    chat.users.forEach(userId => {
+        if (userId == message.sender._id.toString()) {
+            return;
+        }
+        Notification.insertNotification(userId, message.sender._id, "newMessage", message.chat._id);
+    });
+}
 
 module.exports = router;

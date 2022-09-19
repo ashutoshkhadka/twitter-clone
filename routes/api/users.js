@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const User = require('../../schemas/UserSchema');
 const Post = require('../../schemas/PostSchema');
+const Notification = require('../../schemas/NotificationSchema');
 const multer = require('multer');
 const upload = multer({ dest: "uploads/" });
 const path = require('path');
@@ -66,6 +67,9 @@ router.put("/:userId/follow", async (req, res, next) => {
             res.sendStatus(400);
         })
 
+        if (!isFollowing) {
+            await Notification.insertNotification(userId, req.session.user._id, "follow", req.session.user._id);
+        }
 
 
     res.status(200).send(req.session.user);
