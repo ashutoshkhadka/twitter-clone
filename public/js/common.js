@@ -591,13 +591,42 @@ function getOtherChatUsers(users) {
     return users.filter(user => user._id != userLoggedIn._id);
 }
 
-function messageReceived(newMessage){
+function messageReceived(newMessage) {
     console.log("inside Message Reciev")
-    if($(".chatContainer").length == 0) {
+    if ($(".chatContainer").length == 0) {
         // Not on the chat page
         //Show popup notification
     } else {
         //chat Page
         addChatMessageHtml(newMessage);
     }
+}
+
+
+$(document).on("click", ".notification.active", (e) => {
+    var container = $(e.target);
+    var notificationId = container.data().id;
+    var href = container.attr("href");
+    e.preventDefault();
+    var callback = () => window.location = href;
+    markNotificationAsOpened(notificationId, callback)
+})
+
+function markNotificationAsOpened(notificationId = null, callback = null) {
+    var url = notificationId != null ? `/api/notifications/${notificationId}/markAsOpened` : `/api/notifications/markAsOpened`;
+    console.log(callback);
+    console.log(url);
+    $.ajax({
+        url: url,
+        type: "PUT",
+        success: (data, status, xhr) => {
+            console.log("success");
+            if (callback == null) {
+                location.reload();
+            } else {
+                callback();
+            }
+        }
+    })
+    console.log("after ajax");
 }

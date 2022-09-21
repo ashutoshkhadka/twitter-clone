@@ -788,3 +788,11 @@ nav a {
     width: 50%;
     max-width: 75px;
 }
+
+.resultListItem.active {
+    background-color: var(--blue-background)
+}
+
+.resultListItem.notification * {
+    pointer-events: none;
+}

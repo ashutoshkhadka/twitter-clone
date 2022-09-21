@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const NotificationSchema = new Schema({
-    userTo: [{
+    userTo: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }],
-    userFrom: [{
+    },
+    userFrom: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }],
+    },
     notificationType: String,
     opened: {
         type: Boolean,
