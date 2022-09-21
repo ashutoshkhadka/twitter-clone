@@ -9,3 +9,18 @@ socket.on("connected", () => connected = true);
 socket.on("message received", (newMessage) =>{
     messageReceived(newMessage);
 });
+
+socket.on("notification received", (newNotification) =>{
+    $.get("/api/notifications/latest", (notification)=>{
+        showNotificationPopup(notification);
+        refreshNotificationBadge();
+    })
+})
+
+function emitNotification(userId) {
+    if (userId == userLoggedIn._id){
+        return;
+    } else {
+        socket.emit("notification received", userId);
+    }
+}

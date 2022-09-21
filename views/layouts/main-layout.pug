@@ -23,10 +23,12 @@ html(lang="en")
                         i.fa-solid.fa-magnifying-glass
                     a(href="/notifications")
                         i.fa-regular.fa-bell
+                        span#notificationsBadge 
                     a(href="/profile")
                         i.fa-solid.fa-user
                     a(href="/messages")
                         i.fa-solid.fa-envelope
+                        span#messagesBadge 5
                     a(href="/logout")
                         i.fa-solid.fa-right-from-bracket
                 .mainSectionContainer.col-10.col-md-8.col-lg-6
@@ -35,6 +37,7 @@ html(lang="en")
                         block headerButton
                     block content
                 .d-none.d-md-block.col-2.col-lg-4
+        #notificationList
                 
             
         script(src='https://kit.fontawesome.com/e6d65a67f3.js' crossorigin='anonymous')
